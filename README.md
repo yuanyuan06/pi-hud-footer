@@ -95,7 +95,7 @@ pi install /path/to/pi-hud-footer
 | `barWidth` | 上下文进度条宽度。 |
 | `maxTools` | 工具统计最多显示数量。 |
 
-`display` 支持 `all`、`classic`、`border` 分组，可配置：`toolsLine`、`modelName`、`thinkingLevel`、`projectName`、`gitBranch`、`context`、`tokens`、`tokenBreakdown`、`tokenRate`、`cacheRate`、`elapsed`、`cost`、`state`、`turnDuration`。
+`display` 支持 `all`、`classic`、`border` 分组，可配置：`toolsLine`、`modelName`、`providerName`（模型名前的 provider 显示，如 `uco-gollm-anthropic/gpt-5.5`，默认开启）、`thinkingLevel`、`projectName`、`gitBranch`、`context`、`tokens`、`tokenBreakdown`、`tokenRate`、`cacheRate`、`elapsed`、`cost`、`state`、`turnDuration`、`extensionStatuses`（扩展 setStatus 状态行，默认开启，如 llmgw 余额）。
 
 修改配置后，在 pi 中执行：
 

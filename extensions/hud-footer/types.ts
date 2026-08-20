@@ -10,6 +10,7 @@ export const HUD_DISPLAY_SCOPES = ["all", "classic", "border"] as const;
 export const HUD_DISPLAY_KEYS = [
 	"toolsLine",
 	"modelName",
+	"providerName",
 	"thinkingLevel",
 	"projectName",
 	"gitBranch",
@@ -22,6 +23,7 @@ export const HUD_DISPLAY_KEYS = [
 	"cost",
 	"state",
 	"turnDuration",
+	"extensionStatuses",
 ] as const;
 export type HudDisplayKey = (typeof HUD_DISPLAY_KEYS)[number];
 export type HudDisplayScope = (typeof HUD_DISPLAY_SCOPES)[number];

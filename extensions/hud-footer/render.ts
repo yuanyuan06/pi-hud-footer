@@ -2,7 +2,7 @@ import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-a
 import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 import { basename } from "node:path";
 import { isDisplayEnabled } from "./config.ts";
-import { fmtDuration, fmtPercent, fmtTokenRate, fmtTokens, fmtTurnDuration, shortModel } from "./format.ts";
+import { fmtDuration, fmtPercent, fmtTokenRate, fmtTokens, fmtTurnDuration, shortModel, shortProvider } from "./format.ts";
 import { getI18n } from "./i18n.ts";
 import { collectStats, TOOL_ORDER } from "./stats.ts";
 import type { ColorName, HudConfig, HudLanguage, HudStats } from "./types.ts";
@@ -106,13 +106,17 @@ function modelText(
 	classic = false,
 ): string | undefined {
 	const model = isDisplayEnabled(config, "modelName") ? shortModel(ctx) : undefined;
+	const provider = isDisplayEnabled(config, "providerName") ? shortProvider(ctx) : undefined;
+	// provider/model 拼接，与 pi 的模型引用约定一致；两者都开时显示 provider/model，
+	// 只开其一时显示开启的那一个。
+	const name = [provider, model].filter(Boolean).join("/");
 	const thinking = isDisplayEnabled(config, "thinkingLevel") ? pi.getThinkingLevel() : undefined;
-	if (!model && !thinking) return undefined;
-	if (model && thinking) {
-		const label = classic ? `[${model} (${thinking})]` : `[${model} ${thinking}]`;
+	if (!name && !thinking) return undefined;
+	if (name && thinking) {
+		const label = classic ? `[${name} (${thinking})]` : `[${name} ${thinking}]`;
 		return theme.fg("accent", label);
 	}
-	return theme.fg("accent", `[${model ?? thinking}]`);
+	return theme.fg("accent", `[${name ?? thinking}]`);
 }
 
 function locationText(
@@ -246,11 +250,20 @@ export function renderHudBottomBorderSegments(
 	};
 }
 
-function renderBorderFooterLines(ctx: ExtensionContext, config: HudConfig, theme: Theme, width: number): string[] {
+function renderBorderFooterLines(
+	ctx: ExtensionContext,
+	config: HudConfig,
+	theme: Theme,
+	width: number,
+	getExtensionStatuses: () => ReadonlyMap<string, string>,
+): string[] {
 	const i18n = getI18n(config.language);
 	const stats = collectStats(ctx);
 	const tools = toolLine(stats, theme, width, config, i18n.labels.tools);
-	return tools ? [tools] : [];
+	const lines = tools ? [tools] : [];
+	const extStatus = extensionStatusesLine(config, theme, width, getExtensionStatuses);
+	if (extStatus) lines.push(extStatus);
+	return lines;
 }
 
 function renderClassicFooterLines(
@@ -263,6 +276,7 @@ function renderClassicFooterLines(
 	theme: Theme,
 	width: number,
 	getGitBranch: () => string | null | undefined,
+	getExtensionStatuses: () => ReadonlyMap<string, string>,
 ): string[] {
 	const i18n = getI18n(config.language);
 	const stats = collectStats(ctx);
@@ -318,7 +332,27 @@ function renderClassicFooterLines(
 		.map((line) => truncateToWidth(joinParts([" ", line]), width));
 	const tools = toolLine(stats, theme, width, config, i18n.labels.tools);
 	if (tools) lines.push(tools);
+	const extStatus = extensionStatusesLine(config, theme, width, getExtensionStatuses);
+	if (extStatus) lines.push(extStatus);
 	return lines;
+}
+
+// 扩展状态行（ctx.ui.setStatus 写入的文本，如 llmgw 余额）。默认开启，
+// 可由 display.extensionStatuses 或 display.all.extensionStatuses 关闭。
+function extensionStatusesLine(
+	config: HudConfig,
+	theme: Theme,
+	width: number,
+	getExtensionStatuses: () => ReadonlyMap<string, string>,
+): string | undefined {
+	if (!isDisplayEnabled(config, "extensionStatuses")) return undefined;
+	const statuses = getExtensionStatuses();
+	if (statuses.size === 0) return undefined;
+	const line = Array.from(statuses.entries())
+		.sort(([a], [b]) => a.localeCompare(b))
+		.map(([, text]) => text)
+		.join("  ");
+	return truncateToWidth(joinParts([" ", theme.fg("muted", line)]), width);
 }
 
 export function createHudFooter(
@@ -333,6 +367,7 @@ export function createHudFooter(
 	return (tui, theme, footerData) => {
 		if (editorState) editorState.getGitBranch = () => footerData.getGitBranch();
 		const disposeBranch = footerData.onBranchChange(() => tui.requestRender());
+		const getExtensionStatuses = () => footerData.getExtensionStatuses();
 
 		return {
 			dispose: disposeBranch,
@@ -349,8 +384,9 @@ export function createHudFooter(
 						theme,
 						width,
 						() => footerData.getGitBranch(),
+						getExtensionStatuses,
 					)
-					: renderBorderFooterLines(ctx, config, theme, width);
+					: renderBorderFooterLines(ctx, config, theme, width, getExtensionStatuses);
 
 				return lines.map((line) => {
 					if (visibleWidth(line) <= width) return line;

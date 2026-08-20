@@ -62,3 +62,9 @@ export function shortModel(ctx: ExtensionContext): string {
 		.replace(/-20\d{6}$/, "")
 		.replace(/-latest$/, "");
 }
+
+// provider 显示：默认原样返回 provider id（如 anthropic、openai、uco-gollm-anthropic），
+// 常见内置 provider 可在此裁剪，无需改建。/model 列表即按 provider/model 引用，保持一致。
+export function shortProvider(ctx: ExtensionContext): string {
+	return ctx.model?.provider ?? "no-provider";
+}
