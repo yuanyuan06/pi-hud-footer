@@ -57,6 +57,7 @@ pi install npm:pi-hud-footer
 
 ```bash
 pi install git:github.com/liao666brant/pi-hud-footer
+pi install git:github.com/yuanyuan06/pi-hud-footer
 ```
 
 本地开发或调试时，可以从本地路径安装：
