@@ -88,6 +88,7 @@
 | `cost` | 费用估算 |
 | `state` | running / ready 状态 |
 | `turnDuration` | 每轮对话用时通知 |
+| `pid` | 当前 pi 进程号，便于把窗口和 `ps` / `lsof` 的输出对上 |
 
 ## 样式取值
 

@@ -95,7 +95,7 @@ Example configuration: [examples/hud-footer.json](examples/hud-footer.json) / an
 | `barWidth` | Context progress bar width. |
 | `maxTools` | Maximum number of tools shown in the tool summary. |
 
-`display` supports the `all`, `classic`, and `border` groups. Available keys: `toolsLine`, `modelName`, `thinkingLevel`, `projectName`, `gitBranch`, `context`, `tokens`, `tokenBreakdown`, `tokenRate`, `cacheRate`, `elapsed`, `cost`, `state`, `turnDuration`.
+`display` supports the `all`, `classic`, and `border` groups. Available keys: `toolsLine`, `modelName`, `thinkingLevel`, `projectName`, `gitBranch`, `context`, `tokens`, `tokenBreakdown`, `tokenRate`, `cacheRate`, `elapsed`, `cost`, `state`, `turnDuration`, `extensionStatuses`, `pid`.
 
 After changing configuration, run this in pi:
 

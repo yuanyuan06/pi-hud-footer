@@ -10,6 +10,7 @@ type FooterLabels = {
 	cost: string;
 	tools: string;
 	context: string;
+	pid: string;
 	tokenBreakdown(input: string, output: string, cacheRead?: string, cacheWrite?: string): string;
 };
 
@@ -50,6 +51,7 @@ const TRANSLATIONS: Record<HudLanguage, Omit<HudMessages, "language">> = {
 			cost: "cost",
 			tools: "tools:",
 			context: "ctx",
+			pid: "pid",
 			tokenBreakdown: (input, output, cacheRead, cacheWrite) => {
 				const cache = cacheBreakdown(cacheRead, cacheWrite);
 				return cache ? `(in ${input} / out ${output} / cache ${cache})` : `(in ${input} / out ${output})`;
@@ -84,6 +86,7 @@ const TRANSLATIONS: Record<HudLanguage, Omit<HudMessages, "language">> = {
 			cost: "费用",
 			tools: "工具:",
 			context: "上下文",
+			pid: "进程",
 			tokenBreakdown: (input, output, cacheRead, cacheWrite) => {
 				const cache = cacheBreakdown(cacheRead, cacheWrite);
 				return cache ? `(输入 ${input} / 输出 ${output} / 缓存 ${cache})` : `(输入 ${input} / 输出 ${output})`;

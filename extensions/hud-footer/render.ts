@@ -142,6 +142,16 @@ function locationText(
 	return undefined;
 }
 
+// 显示当前 pi 进程的 PID：窗口多开时用来把 footer 和 ps / lsof 的输出对上。
+function pidText(
+	config: HudConfig,
+	theme: Theme,
+	i18n: ReturnType<typeof getI18n>,
+): string | undefined {
+	if (!isDisplayEnabled(config, "pid")) return undefined;
+	return theme.fg("muted", `${i18n.labels.pid} ${process.pid}`);
+}
+
 function toolSummary(stats: HudStats, theme: Theme, config: HudConfig): string | undefined {
 	const entries = [...stats.tools.entries()]
 		.sort(([aName, a], [bName, b]) => {
@@ -218,8 +228,9 @@ export function renderHudTopBorderSegments(
 		isDisplayEnabled(config, "cost") ? theme.fg("muted", `${i18n.labels.cost} $${stats.cost.toFixed(2)}`) : undefined,
 	], theme.fg("dim", " | "));
 	const location = locationText(ctx, branch, config, theme);
+	const pid = pidText(config, theme, i18n);
 
-	return { left: joinParts([model, runMetrics || undefined]) || undefined, right: location };
+	return { left: joinParts([model, runMetrics || undefined]) || undefined, right: joinParts([location, pid]) || undefined };
 }
 
 export function renderHudBottomBorderSegments(
@@ -325,7 +336,11 @@ function renderClassicFooterLines(
 		? theme.fg("muted", `${i18n.labels.cost} $${stats.cost.toFixed(2)}`)
 		: undefined;
 
-	const line1Body = joinWithSeparator([joinParts([topLeft, contextSegment]) || undefined, git, state], theme.fg("dim", " | "));
+	const pid = pidText(config, theme, i18n);
+	const line1Body = joinWithSeparator(
+		[joinParts([topLeft, contextSegment]) || undefined, joinParts([git, pid]) || undefined, state],
+		theme.fg("dim", " | "),
+	);
 	const line2Body = joinWithSeparator([tokenSummary, tokenRate, cacheRate, elapsedText, costText], theme.fg("dim", " | "));
 	const lines = [line1Body, line2Body]
 		.filter(Boolean)

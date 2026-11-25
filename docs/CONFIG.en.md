@@ -88,6 +88,7 @@ Supports the `all`, `classic`, and `border` groups. Precedence: `display.all` < 
 | `cost` | Estimated cost |
 | `state` | running / ready state |
 | `turnDuration` | Per-turn duration notification |
+| `pid` | PID of the current pi process, for matching a window against `ps` / `lsof` |
 
 ## Style values
 
